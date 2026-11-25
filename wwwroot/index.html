@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetGuard — Программный фаервол</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div>
+            <h1>NetGuard Firewall</h1>
+            <p class="subtitle">Пакетная фильтрация IPv4 (TCP/UDP/ICMP), Stateful-инспекция, защита от Flood-атак</p>
+        </div>
+        <div class="status-pill" id="statusBadge">Остановлен</div>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card"><span class="label">Всего пакетов</span><strong id="statTotal">0</strong></div>
+        <div class="stat-card allow"><span class="label">Разрешено (Allow)</span><strong id="statAllow">0</strong></div>
+        <div class="stat-card deny"><span class="label">Заблокировано (Deny)</span><strong id="statDeny">0</strong></div>
+        <div class="stat-card warn"><span class="label">Flood-блокировки</span><strong id="statFlood">0</strong></div>
+        <div class="stat-card"><span class="label">TCP / UDP / ICMP</span><strong id="statProto">0 / 0 / 0</strong></div>
+        <div class="stat-card"><span class="label">TCP-сессии</span><strong id="statConn">0</strong></div>
+    </section>
+
+    <section class="panel controls-panel">
+        <h2>Управление перехватом и симуляция атак</h2>
+        <div class="controls-row">
+            <select id="interfaceSelect"></select>
+            <button class="btn primary" onclick="startCapture()">Запустить захват</button>
+            <button class="btn" onclick="stopCapture()">Остановить</button>
+            <span class="divider"></span>
+            <button class="btn" onclick="simulate('normal')">Пакеты: Норма</button>
+            <button class="btn danger" onclick="simulate('syn-flood')">Симуляция SYN-Flood</button>
+            <button class="btn danger" onclick="simulate('ping-flood')">Симуляция Ping-Flood</button>
+            <span class="divider"></span>
+            <label>Политика по умолч.:
+                <select id="defaultPolicy" onchange="changePolicy()">
+                    <option value="Allow">Allow</option>
+                    <option value="Deny">Deny</option>
+                </select>
+            </label>
+        </div>
+        <p class="status-msg" id="statusMsg">Готов к работе</p>
+    </section>
+
+    <div class="two-col">
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Правила фильтрации (ACL)</h2>
+                <button class="btn" onclick="reloadRules()">Горячая перезагрузка</button>
+            </div>
+            <form class="rule-form" onsubmit="addRule(event)">
+                <input id="rPriority" type="number" value="15" placeholder="Приоритет" title="Приоритет (меньше = выше)">
+                <input id="rName" type="text" placeholder="Название правила" required>
+                <select id="rAction">
+                    <option value="Deny">Deny</option>
+                    <option value="Allow">Allow</option>
+                </select>
+                <select id="rProto">
+                    <option value="ANY">ANY</option>
+                    <option value="TCP">TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="ICMP">ICMP</option>
+                </select>
+                <input id="rSrcIp" type="text" value="*" placeholder="Src IP / CIDR">
+                <input id="rDstIp" type="text" value="*" placeholder="Dst IP / CIDR">
+                <input id="rDstPort" type="text" value="*" placeholder="Dst Port (80 или 8000-8080)">
+                <button class="btn primary" type="submit">+ Добавить</button>
+            </form>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Приор.</th><th>Название</th><th>Действие</th><th>Прот.</th><th>Src IP</th><th>Dst IP</th><th>Dst Порт</th><th></th></tr>
+                    </thead>
+                    <tbody id="rulesBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Тест пакета вручную</h2>
+            </div>
+            <form class="rule-form" onsubmit="testPacket(event)">
+                <select id="tProto">
+                    <option value="TCP">TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="ICMP">ICMP</option>
+                </select>
+                <input id="tSrcIp" type="text" value="192.168.1.50" placeholder="Source IP">
+                <input id="tDstIp" type="text" value="192.168.1.10" placeholder="Destination IP">
+                <input id="tSrcPort" type="number" value="54321" placeholder="Src Port">
+                <input id="tDstPort" type="number" value="23" placeholder="Dst Port">
+                <button class="btn primary" type="submit">Проверить пакет</button>
+            </form>
+            <div id="testResult" class="test-result">Отправьте тестовый пакет для проверки ACL</div>
+        </section>
+    </div>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h2>Журнал сетевых событий (firewall.log)</h2>
+        </div>
+        <div class="table-wrap logs-wrap">
+            <table>
+                <thead>
+                <tr><th>Время (UTC)</th><th>Действие</th><th>Протокол</th><th>Источник</th><th>Назначение</th><th>Флаги</th><th>Причина / Правило</th></tr>
+                </thead>
+                <tbody id="logsBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

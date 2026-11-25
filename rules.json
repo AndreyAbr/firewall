@@ -1,0 +1,79 @@
+{
+  "DefaultPolicy": "Allow",
+  "SynFloodThresholdPerSec": 25,
+  "PingFloodThresholdPerSec": 20,
+  "Rules": [
+    {
+      "Id": "r-telnet",
+      "Priority": 10,
+      "Name": "Block Telnet (23)",
+      "Action": "Deny",
+      "Protocol": "TCP",
+      "SourceIp": "*",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "23",
+      "Enabled": true
+    },
+    {
+      "Id": "r-smb",
+      "Priority": 20,
+      "Name": "Block SMB (445)",
+      "Action": "Deny",
+      "Protocol": "TCP",
+      "SourceIp": "*",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "445",
+      "Enabled": true
+    },
+    {
+      "Id": "r-subnet",
+      "Priority": 30,
+      "Name": "Block Untrusted Subnet",
+      "Action": "Deny",
+      "Protocol": "ANY",
+      "SourceIp": "10.99.0.0/16",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "*",
+      "Enabled": true
+    },
+    {
+      "Id": "r-https",
+      "Priority": 40,
+      "Name": "Allow HTTPS (443)",
+      "Action": "Allow",
+      "Protocol": "TCP",
+      "SourceIp": "*",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "443",
+      "Enabled": true
+    },
+    {
+      "Id": "r-http",
+      "Priority": 50,
+      "Name": "Allow HTTP (80)",
+      "Action": "Allow",
+      "Protocol": "TCP",
+      "SourceIp": "*",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "80",
+      "Enabled": true
+    },
+    {
+      "Id": "r-dns",
+      "Priority": 60,
+      "Name": "Allow DNS (53)",
+      "Action": "Allow",
+      "Protocol": "UDP",
+      "SourceIp": "*",
+      "DestinationIp": "*",
+      "SourcePort": "*",
+      "DestinationPort": "53",
+      "Enabled": true
+    }
+  ]
+}
