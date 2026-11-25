@@ -10,7 +10,7 @@ async function loadInterfaces() {
     for (const ni of items) {
         const opt = document.createElement('option');
         opt.value = ni.ipAddress;
-        opt.textContent = `${ni.name} (${ni.ipAddress}) — ${ni.status}`;
+        opt.textContent = `${ni.name} (${ni.ipAddress})`;
         sel.appendChild(opt);
     }
 }
@@ -25,9 +25,10 @@ async function refreshAll() {
     const rulesCfg = await rulesRes.json();
     const logs = await logsRes.json();
 
-    const pill = document.getElementById('statusBadge');
-    pill.textContent = status.isCapturing ? `Активен: ${status.activeInterface}` : 'Остановлен';
-    pill.className = 'status-pill' + (status.isCapturing ? ' active' : '');
+    document.getElementById('statusBadge').textContent = status.isCapturing
+        ? `Активен: ${status.activeInterface}`
+        : 'Остановлен';
+    document.getElementById('statusDot').className = 'status-dot' + (status.isCapturing ? ' active' : '');
     document.getElementById('statusMsg').textContent = status.statusMessage;
     document.getElementById('defaultPolicy').value = status.defaultPolicy;
 
@@ -42,16 +43,15 @@ async function refreshAll() {
     const rulesBody = document.getElementById('rulesBody');
     rulesBody.innerHTML = rulesCfg.rules.map(r => `
         <tr style="${r.enabled ? '' : 'opacity:0.45'}">
-            <td>${r.priority}</td>
+            <td class="mono">${r.priority}</td>
             <td>${escapeHtml(r.name)}</td>
             <td><span class="badge ${r.action}">${r.action}</span></td>
-            <td>${r.protocol}</td>
-            <td>${escapeHtml(r.sourceIp)}</td>
-            <td>${escapeHtml(r.destinationIp)}</td>
-            <td>${escapeHtml(r.destinationPort)}</td>
+            <td class="mono">${r.protocol}</td>
+            <td class="mono">${escapeHtml(r.sourceIp)}</td>
+            <td class="mono">${escapeHtml(r.destinationPort)}</td>
             <td>
                 <button class="btn sm" onclick="toggleRule('${r.id}')">${r.enabled ? 'Выкл' : 'Вкл'}</button>
-                <button class="btn sm danger" onclick="deleteRule('${r.id}')">✕</button>
+                <button class="btn sm" onclick="deleteRule('${r.id}')" title="Удалить">×</button>
             </td>
         </tr>
     `).join('');
@@ -59,12 +59,12 @@ async function refreshAll() {
     const logsBody = document.getElementById('logsBody');
     logsBody.innerHTML = logs.map(ev => `
         <tr>
-            <td>${new Date(ev.timestamp).toISOString().slice(11, 23)}</td>
+            <td class="mono">${new Date(ev.timestamp).toISOString().slice(11, 23)}</td>
             <td><span class="badge ${ev.action}">${ev.action}</span></td>
-            <td>${ev.protocol}</td>
-            <td>${ev.sourceIp}:${ev.sourcePort}</td>
-            <td>${ev.destinationIp}:${ev.destinationPort}</td>
-            <td>${escapeHtml(ev.flags)}</td>
+            <td class="mono">${ev.protocol}</td>
+            <td class="mono">${ev.sourceIp}:${ev.sourcePort}</td>
+            <td class="mono">${ev.destinationIp}:${ev.destinationPort}</td>
+            <td class="mono">${escapeHtml(ev.flags)}</td>
             <td>${escapeHtml(ev.reason)}</td>
         </tr>
     `).join('');
